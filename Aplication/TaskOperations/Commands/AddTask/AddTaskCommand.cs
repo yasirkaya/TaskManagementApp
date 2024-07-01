@@ -17,7 +17,6 @@ public class AddTaskCommand
     }
     public void Handle()
     {
-        //burda mapper kullanılacak.
         TaskItem task = _mapper.Map<TaskItem>(Model);
         _dbContext.Task.Add(task);
         _dbContext.SaveChanges();
