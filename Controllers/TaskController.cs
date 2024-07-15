@@ -4,11 +4,13 @@ using Microsoft.AspNetCore.Mvc;
 using TaskManagementApp.Aplication.Commands.AddTask;
 using TaskManagementApp.Aplication.Commands.DeleteTask;
 using TaskManagementApp.Aplication.Commands.UpdateTask;
+using TaskManagementApp.Aplication.Queries.GetFilteredTasks;
 using TaskManagementApp.Aplication.Queries.GetTaskDetail;
 using TaskManagementApp.Aplication.Queries.GetTasks;
 using TaskManagementApp.Data;
 using static TaskManagementApp.Aplication.Commands.AddTask.AddTaskCommand;
 using static TaskManagementApp.Aplication.Commands.UpdateTask.UpdateTaskCommand;
+using static TaskManagementApp.Aplication.Queries.GetFilteredTasks.GetFilteredTasksQuery;
 
 namespace TaskManagementApp.Controllers;
 
@@ -27,10 +29,10 @@ public class TaskController : ControllerBase
     }
 
     [HttpGet]
-    public IActionResult GetTasks()
+    public IActionResult GetTasks([FromQuery] GetTasksFilterModel filter)
     {
-        GetTasksQuery query = new GetTasksQuery(_context);
-        var result = query.Handle();
+        GetFilteredTasksQuery query = new GetFilteredTasksQuery(_context);
+        var result = query.Handle(filter);
         return Ok(result);
     }
 
