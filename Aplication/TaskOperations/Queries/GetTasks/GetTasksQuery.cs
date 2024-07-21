@@ -1,20 +1,19 @@
 using TaskManagementApp.Data;
 using TaskManagementApp.Models;
+using TaskManagementApp.Services.TaskService;
 
 namespace TaskManagementApp.Aplication.Queries.GetTasks;
 
 public class GetTasksQuery
 {
-    private readonly AppDbContext _context;
+    private readonly TaskService _taskService;
 
-    public GetTasksQuery(AppDbContext context)
+    public GetTasksQuery(TaskService taskService)
     {
-        _context = context;
+        _taskService = taskService;
     }
-    public List<TaskItem> Handle()
+    public async Task<IEnumerable<TaskItem>> Handle()
     {
-        var taskList = _context.Task.OrderBy(x => x.Id).ToList<TaskItem>();
-        return taskList;
-
+        return await _taskService.GetAllTasksAsync();
     }
 }

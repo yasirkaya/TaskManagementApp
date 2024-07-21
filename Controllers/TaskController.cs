@@ -8,6 +8,7 @@ using TaskManagementApp.Aplication.Queries.GetFilteredTasks;
 using TaskManagementApp.Aplication.Queries.GetTaskDetail;
 using TaskManagementApp.Aplication.Queries.GetTasks;
 using TaskManagementApp.Data;
+using TaskManagementApp.Services.TaskService;
 using static TaskManagementApp.Aplication.Commands.AddTask.AddTaskCommand;
 using static TaskManagementApp.Aplication.Commands.UpdateTask.UpdateTaskCommand;
 using static TaskManagementApp.Aplication.Queries.GetFilteredTasks.GetFilteredTasksQuery;
@@ -19,57 +20,57 @@ namespace TaskManagementApp.Controllers;
 
 public class TaskController : ControllerBase
 {
-    private readonly AppDbContext _context;
+    private readonly ITaskService _taskService;
     private readonly IMapper _mapper;
 
-    public TaskController(AppDbContext context, IMapper mapper)
+    public TaskController(IMapper mapper, ITaskService taskService)
     {
-        _context = context;
         _mapper = mapper;
+        _taskService = taskService;
     }
 
     [HttpGet]
-    public IActionResult GetTasks([FromQuery] GetTasksFilterModel filter)
+    public async Task<IActionResult> GetTasks([FromQuery] GetTasksFilterModel filter)
     {
-        GetFilteredTasksQuery query = new GetFilteredTasksQuery(_context);
-        var result = query.Handle(filter);
+        GetFilteredTasksQuery query = new GetFilteredTasksQuery(_taskService);
+        var result = await query.Handle(filter);
         return Ok(result);
     }
 
     [HttpGet("{id}")]
-    public IActionResult GetTaskById(int id)
+    public async Task<IActionResult> GetTaskById(int id)
     {
-        GetTaskDetailQuery query = new GetTaskDetailQuery(_context);
+        GetTaskDetailQuery query = new GetTaskDetailQuery(_taskService);
         query.TaskId = id;
-        var result = query.Handle();
+        var result = await query.Handle();
         return Ok(result);
     }
 
     [HttpPost]
-    public IActionResult AddTask([FromBody] AddTaskModel newTask)
+    public async Task<IActionResult> AddTask([FromBody] AddTaskModel newTask)
     {
-        AddTaskCommand command = new AddTaskCommand(_context, _mapper);
+        AddTaskCommand command = new AddTaskCommand(_mapper, _taskService);
         command.Model = newTask;
-        command.Handle();
+        await command.Handle();
         return Ok();
     }
 
     [HttpPut("{id}")]
-    public IActionResult UpdateTask(int id, [FromBody] UpdateTaskModel updateTask)
+    public async Task<IActionResult> UpdateTask(int id, [FromBody] UpdateTaskModel updateTask)
     {
-        UpdateTaskCommand command = new UpdateTaskCommand(_context);
+        UpdateTaskCommand command = new UpdateTaskCommand(_taskService, _mapper);
         command.TaskId = id;
         command.Model = updateTask;
-        command.Handle();
+        await command.Handle();
         return Ok();
     }
 
     [HttpDelete("{id}")]
-    public IActionResult DeleteTask(int id)
+    public async Task<IActionResult> DeleteTask(int id)
     {
-        DeleteTaskCommand command = new DeleteTaskCommand(_context);
+        DeleteTaskCommand command = new DeleteTaskCommand(_taskService);
         command.TaskId = id;
-        command.Handle();
+        await command.Handle();
         return Ok();
     }
 }

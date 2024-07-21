@@ -1,25 +1,21 @@
 using TaskManagementApp.Data;
 using TaskManagementApp.Models;
+using TaskManagementApp.Services.TaskService;
 
 namespace TaskManagementApp.Aplication.Queries.GetTaskDetail;
 
 public class GetTaskDetailQuery
 {
     public int TaskId { get; set; }
-    private readonly AppDbContext _context;
+    private readonly ITaskService _taskService;
 
-    public GetTaskDetailQuery(AppDbContext context)
+    public GetTaskDetailQuery(ITaskService taskService)
     {
-        _context = context;
+        _taskService = taskService;
     }
 
-    public TaskItem Handle()
+    public async Task<TaskItem> Handle()
     {
-        var task = _context.Task.SingleOrDefault(x => x.Id == TaskId);
-
-        if (task is null)
-            throw new InvalidOperationException("Görev Bulunamadı.");
-
-        return task;
+        return await _taskService.GetTaskByIdAsync(TaskId);
     }
 }

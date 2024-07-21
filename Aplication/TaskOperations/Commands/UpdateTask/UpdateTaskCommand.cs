@@ -2,6 +2,7 @@ using System.Diagnostics.Eventing.Reader;
 using AutoMapper;
 using TaskManagementApp.Data;
 using TaskManagementApp.Models;
+using TaskManagementApp.Services.TaskService;
 
 namespace TaskManagementApp.Aplication.Commands.UpdateTask;
 
@@ -9,23 +10,18 @@ public class UpdateTaskCommand
 {
     public UpdateTaskModel Model { get; set; }
     public int TaskId { get; set; }
-    private readonly AppDbContext _context;
-    public UpdateTaskCommand(AppDbContext context)
+    private readonly ITaskService _taskService;
+    private readonly IMapper _mapper;
+    public UpdateTaskCommand(ITaskService taskService, IMapper mapper)
     {
-        _context = context;
+        _taskService = taskService;
+        _mapper = mapper;
     }
-    public void Handle()
+    public async Task Handle()
     {
-        var task = _context.Task.SingleOrDefault(x => x.Id == TaskId);
-        if (task is null)
-            throw new InvalidOperationException("Görev Bulunamadı.");
+        var task = _mapper.Map<TaskItem>(Model);
+        await _taskService.UpdateTaskAsync(task);
 
-        task.Name = string.IsNullOrEmpty(Model.Name.Trim()) ? task.Name : Model.Name;
-        task.Description = string.IsNullOrEmpty(Model.Description) ? task.Description : Model.Description;
-        task.IsCompleted = Model.IsCompleted;
-        task.DueDate = Model.DueDate.ToString("g") == DateTime.Now.ToString("g") ? task.DueDate : Model.DueDate;
-
-        _context.SaveChanges();
     }
 
     public class UpdateTaskModel

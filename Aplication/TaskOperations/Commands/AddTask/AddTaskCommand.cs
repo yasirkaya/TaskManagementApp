@@ -1,25 +1,25 @@
 using AutoMapper;
 using TaskManagementApp.Data;
 using TaskManagementApp.Models;
+using TaskManagementApp.Services.TaskService;
 
 namespace TaskManagementApp.Aplication.Commands.AddTask;
 
 public class AddTaskCommand
 {
     public AddTaskModel Model { get; set; }
-    private readonly AppDbContext _dbContext;
+    private readonly ITaskService _taskService;
     private readonly IMapper _mapper;
 
-    public AddTaskCommand(AppDbContext dbContext, IMapper mapper)
+    public AddTaskCommand(IMapper mapper, ITaskService taskService)
     {
-        _dbContext = dbContext;
         _mapper = mapper;
+        _taskService = taskService;
     }
-    public void Handle()
+    public async Task Handle()
     {
         TaskItem task = _mapper.Map<TaskItem>(Model);
-        _dbContext.Task.Add(task);
-        _dbContext.SaveChanges();
+        await _taskService.AddTaskAsync(task);
     }
     public class AddTaskModel
     {

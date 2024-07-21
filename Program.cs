@@ -2,6 +2,8 @@
 using System.Reflection;
 using Microsoft.EntityFrameworkCore;
 using TaskManagementApp.Data;
+using TaskManagementApp.Services.TaskRepository;
+using TaskManagementApp.Services.TaskService;
 
 namespace TaskManagementApp;
 
@@ -16,6 +18,8 @@ public class Program
         builder.Services.AddControllers();
         builder.Services.AddDbContext<AppDbContext>(options =>
             options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
+        builder.Services.AddScoped<ITaskService, TaskService>();
+        builder.Services.AddScoped<ITaskRepository, TaskRepository>();
         builder.Services.AddAutoMapper(Assembly.GetExecutingAssembly());
         // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
         builder.Services.AddEndpointsApiExplorer();

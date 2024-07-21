@@ -1,24 +1,20 @@
 using TaskManagementApp.Data;
+using TaskManagementApp.Services.TaskService;
 
 namespace TaskManagementApp.Aplication.Commands.DeleteTask;
 
 public class DeleteTaskCommand
 {
     public int TaskId { get; set; }
-    public readonly AppDbContext _context;
+    private readonly ITaskService _taskService;
 
-    public DeleteTaskCommand(AppDbContext context)
+    public DeleteTaskCommand(ITaskService taskService)
     {
-        _context = context;
+        _taskService = taskService;
     }
-    public void Handle()
+    public async Task Handle()
     {
-        var task = _context.Task.SingleOrDefault(x => x.Id == TaskId);
 
-        if (task is null)
-            throw new InvalidOperationException("Görev BUlunamadı.");
-
-        _context.Task.Remove(task);
-        _context.SaveChanges();
+        await _taskService.DeleteTaskAsync(TaskId);
     }
 }
