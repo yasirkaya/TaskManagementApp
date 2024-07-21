@@ -73,12 +73,19 @@ public class TaskRepository : ITaskRepository
     public async Task UpdateTaskAsync(TaskItem task)
     {
         var existingTask = await _context.Task.FindAsync(task.Id);
+
         if (existingTask is not null)
         {
             existingTask.Name = string.IsNullOrEmpty(task.Name.Trim()) ? existingTask.Name : task.Name;
+            // if (existingTask.Name == "yasiryasir")
+            // {
+            //     throw new InvalidOperationException("girdi");
+            // }
             existingTask.Description = string.IsNullOrEmpty(task.Description) ? existingTask.Description : task.Description;
+            System.Console.WriteLine(existingTask.Description);
             existingTask.IsCompleted = task.IsCompleted;
             existingTask.DueDate = task.DueDate.ToString("g") == DateTime.Now.ToString("g") ? existingTask.DueDate : task.DueDate;
+            System.Console.WriteLine(existingTask.DueDate);
 
             await _context.SaveChangesAsync();
         }

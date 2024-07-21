@@ -20,12 +20,14 @@ public class UpdateTaskCommand
     public async Task Handle()
     {
         var task = _mapper.Map<TaskItem>(Model);
+        task.Id = TaskId;
         await _taskService.UpdateTaskAsync(task);
 
     }
 
     public class UpdateTaskModel
     {
+        public int Id { get; set; }
         public string Name { get; set; }
         public string Description { get; set; }
         public bool IsCompleted { get; set; }
