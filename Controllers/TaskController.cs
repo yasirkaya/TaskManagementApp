@@ -30,7 +30,14 @@ public class TaskController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<IActionResult> GetTasks([FromQuery] GetTasksFilterModel filter)
+    public async Task<IActionResult> GetTasks()
+    {
+        var tasks = await _taskService.GetAllTasksAsync();
+        return Ok(tasks);
+    }
+
+    [HttpGet("filtered")]
+    public async Task<IActionResult> GetFilteredTasks([FromQuery] GetTasksFilterModel filter)
     {
         GetFilteredTasksQuery query = new GetFilteredTasksQuery(_taskService);
         var result = await query.Handle(filter);

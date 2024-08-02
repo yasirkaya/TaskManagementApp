@@ -1,8 +1,10 @@
 
 using System.Reflection;
 using Microsoft.EntityFrameworkCore;
+using StackExchange.Redis;
 using TaskManagementApp.Data;
 using TaskManagementApp.Repositories;
+using TaskManagementApp.Services.Caching;
 using TaskManagementApp.Services.TaskService;
 
 namespace TaskManagementApp;
@@ -20,7 +22,13 @@ public class Program
             options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
         builder.Services.AddScoped<ITaskService, TaskService>();
         builder.Services.AddScoped<ITaskRepository, TaskRepository>();
+        builder.Services.AddScoped<ICacheService, CacheService>();
+        builder.Services.Decorate<ITaskService, CacheTaskServiceDecorator>();
         builder.Services.AddAutoMapper(Assembly.GetExecutingAssembly());
+        // Redis configuration
+        var multiplexer = ConnectionMultiplexer.Connect("localhost:6379"); // Redis server URL
+        builder.Services.AddSingleton<IConnectionMultiplexer>(multiplexer);
+        builder.Services.AddScoped<ICacheService, CacheService>();
         // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen();
