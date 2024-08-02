@@ -2,7 +2,7 @@
 using System.Reflection;
 using Microsoft.EntityFrameworkCore;
 using TaskManagementApp.Data;
-using TaskManagementApp.Services.TaskRepository;
+using TaskManagementApp.Repositories;
 using TaskManagementApp.Services.TaskService;
 
 namespace TaskManagementApp;

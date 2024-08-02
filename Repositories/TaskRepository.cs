@@ -4,7 +4,7 @@ using TaskManagementApp.Data;
 using TaskManagementApp.Models;
 using static TaskManagementApp.Aplication.Queries.GetFilteredTasks.GetFilteredTasksQuery;
 
-namespace TaskManagementApp.Services.TaskRepository;
+namespace TaskManagementApp.Repositories;
 
 public class TaskRepository : ITaskRepository
 {
