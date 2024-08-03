@@ -76,16 +76,10 @@ public class TaskRepository : ITaskRepository
 
         if (existingTask is not null)
         {
-            existingTask.Name = string.IsNullOrEmpty(task.Name.Trim()) ? existingTask.Name : task.Name;
-            // if (existingTask.Name == "yasiryasir")
-            // {
-            //     throw new InvalidOperationException("girdi");
-            // }
-            existingTask.Description = string.IsNullOrEmpty(task.Description) ? existingTask.Description : task.Description;
-            System.Console.WriteLine(existingTask.Description);
+            existingTask.Name = (string.IsNullOrEmpty(task.Name.Trim()) || task.Name == "string") ? existingTask.Name : task.Name;
+            existingTask.Description = (string.IsNullOrEmpty(task.Description) || task.Description == "string") ? existingTask.Description : task.Description;
             existingTask.IsCompleted = task.IsCompleted;
             existingTask.DueDate = task.DueDate.ToString("g") == DateTime.Now.ToString("g") ? existingTask.DueDate : task.DueDate;
-            System.Console.WriteLine(existingTask.DueDate);
 
             await _context.SaveChangesAsync();
         }
