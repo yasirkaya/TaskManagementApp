@@ -1,5 +1,6 @@
 using System.Net.NetworkInformation;
 using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TaskManagementApp.Aplication.Commands.AddTask;
 using TaskManagementApp.Aplication.Commands.DeleteTask;
@@ -44,6 +45,7 @@ public class TaskController : ControllerBase
         return Ok(result);
     }
 
+    [Authorize]
     [HttpGet("{id}")]
     public async Task<IActionResult> GetTaskById(int id)
     {
