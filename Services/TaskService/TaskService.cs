@@ -1,3 +1,4 @@
+using FluentValidation;
 using TaskManagementApp.Models;
 using static TaskManagementApp.Aplication.Queries.GetFilteredTasks.GetFilteredTasksQuery;
 
@@ -6,10 +7,12 @@ namespace TaskManagementApp.Services.TaskService;
 public class TaskService : ITaskService
 {
     private readonly ITaskRepository _taskRepository;
+    private readonly IValidator<TaskItem> _taskValidator;
 
-    public TaskService(ITaskRepository taskRepository)
+    public TaskService(ITaskRepository taskRepository, IValidator<TaskItem> taskValidator)
     {
         _taskRepository = taskRepository;
+        _taskValidator = taskValidator;
     }
 
     public async Task<IEnumerable<TaskItem>> GetAllTasksAsync()
@@ -29,6 +32,12 @@ public class TaskService : ITaskService
 
     public async Task AddTaskAsync(TaskItem task)
     {
+        var validationResult = await _taskValidator.ValidateAsync(task);
+
+        if (!validationResult.IsValid)
+        {
+            throw new ValidationException(validationResult.Errors);
+        }
         await _taskRepository.AddTaskAsync(task);
     }
 

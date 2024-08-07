@@ -1,12 +1,15 @@
 
 using System.Reflection;
 using System.Text;
+using FluentValidation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using StackExchange.Redis;
+using TaskManagementApp.Aplication.Commands.AddTask;
 using TaskManagementApp.Data;
+using TaskManagementApp.Models;
 using TaskManagementApp.Repositories;
 using TaskManagementApp.Services.Caching;
 using TaskManagementApp.Services.TaskService;
@@ -49,6 +52,7 @@ public class Program
         builder.Services.AddScoped<ITaskRepository, TaskRepository>();
         builder.Services.AddScoped<ICacheService, CacheService>();
         builder.Services.Decorate<ITaskService, CacheTaskServiceDecorator>();
+        builder.Services.AddTransient<IValidator<TaskItem>, AddTaskValidator>();
         builder.Services.AddAutoMapper(Assembly.GetExecutingAssembly());
         // Redis configuration
         var multiplexer = ConnectionMultiplexer.Connect("localhost:6379"); // Redis server URL
