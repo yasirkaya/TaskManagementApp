@@ -9,6 +9,7 @@ using TaskManagementApp.Aplication.Queries.GetFilteredTasks;
 using TaskManagementApp.Aplication.Queries.GetTaskDetail;
 using TaskManagementApp.Aplication.Queries.GetTasks;
 using TaskManagementApp.Data;
+using TaskManagementApp.Models;
 using TaskManagementApp.Services.TaskService;
 using static TaskManagementApp.Aplication.Commands.AddTask.AddTaskCommand;
 using static TaskManagementApp.Aplication.Commands.UpdateTask.UpdateTaskCommand;
@@ -40,46 +41,39 @@ public class TaskController : ControllerBase
     [HttpGet("filtered")]
     public async Task<IActionResult> GetFilteredTasks([FromQuery] GetTasksFilterModel filter)
     {
-        GetFilteredTasksQuery query = new GetFilteredTasksQuery(_taskService);
-        var result = await query.Handle(filter);
-        return Ok(result);
+        var tasks = await _taskService.GetFilteredTaskAsync(filter);
+        return Ok(tasks);
     }
 
     [Authorize]
     [HttpGet("{id}")]
     public async Task<IActionResult> GetTaskById(int id)
     {
-        GetTaskDetailQuery query = new GetTaskDetailQuery(_taskService);
-        query.TaskId = id;
-        var result = await query.Handle();
-        return Ok(result);
+        var task = await _taskService.GetTaskByIdAsync(id);
+        return Ok(task);
     }
 
     [HttpPost]
     public async Task<IActionResult> AddTask([FromBody] AddTaskModel newTask)
     {
-        AddTaskCommand command = new AddTaskCommand(_mapper, _taskService);
-        command.Model = newTask;
-        await command.Handle();
+        TaskItem task = _mapper.Map<TaskItem>(newTask);
+        await _taskService.AddTaskAsync(task);
         return Ok();
     }
 
     [HttpPut("{id}")]
     public async Task<IActionResult> UpdateTask(int id, [FromBody] UpdateTaskModel updateTask)
     {
-        UpdateTaskCommand command = new UpdateTaskCommand(_taskService, _mapper);
-        command.TaskId = id;
-        command.Model = updateTask;
-        await command.Handle();
+        var task = _mapper.Map<TaskItem>(updateTask);
+        task.Id = id;
+        await _taskService.UpdateTaskAsync(task);
         return Ok();
     }
 
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteTask(int id)
     {
-        DeleteTaskCommand command = new DeleteTaskCommand(_taskService);
-        command.TaskId = id;
-        await command.Handle();
+        await _taskService.DeleteTaskAsync(id);
         return Ok();
     }
 }
