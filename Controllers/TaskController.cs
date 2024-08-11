@@ -21,26 +21,29 @@ namespace TaskManagementApp.Controllers;
 
 public class TaskController : ControllerBase
 {
+    private readonly AppDbContext _context;
     private readonly ITaskService _taskService;
     private readonly IMapper _mapper;
 
-    public TaskController(IMapper mapper, ITaskService taskService)
+    public TaskController(IMapper mapper, ITaskService taskService, AppDbContext context)
     {
         _mapper = mapper;
         _taskService = taskService;
+        _context = context;
     }
 
     [HttpGet]
     public async Task<IActionResult> GetTasks()
     {
-        var tasks = await _taskService.GetAllTasksAsync();
-        return Ok(tasks);
+        GetTasksQuery query = new GetTasksQuery(_context);
+        var result = await query.Handle();
+        return Ok(result);
     }
 
     [HttpGet("filtered")]
     public async Task<IActionResult> GetFilteredTasks([FromQuery] GetTasksFilterModel filter)
     {
-        GetFilteredTasksQuery query = new GetFilteredTasksQuery(_taskService);
+        GetFilteredTasksQuery query = new GetFilteredTasksQuery(_context);
         var result = await query.Handle(filter);
         return Ok(result);
     }
@@ -49,8 +52,7 @@ public class TaskController : ControllerBase
     [HttpGet("{id}")]
     public async Task<IActionResult> GetTaskById(int id)
     {
-        GetTaskDetailQuery query = new GetTaskDetailQuery(_taskService);
-        query.TaskId = id;
+        GetTaskDetailQuery query = new GetTaskDetailQuery(_context) { TaskId = id };
         var result = await query.Handle();
         return Ok(result);
     }
@@ -58,7 +60,7 @@ public class TaskController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> AddTask([FromBody] AddTaskModel newTask)
     {
-        AddTaskCommand command = new AddTaskCommand(_mapper, _taskService);
+        AddTaskCommand command = new AddTaskCommand(_context, _mapper);
         command.Model = newTask;
         await command.Handle();
         return Ok();
@@ -67,9 +69,7 @@ public class TaskController : ControllerBase
     [HttpPut("{id}")]
     public async Task<IActionResult> UpdateTask(int id, [FromBody] UpdateTaskModel updateTask)
     {
-        UpdateTaskCommand command = new UpdateTaskCommand(_taskService, _mapper);
-        command.TaskId = id;
-        command.Model = updateTask;
+        UpdateTaskCommand command = new UpdateTaskCommand(_context, _mapper) { TaskId = id, Model = updateTask };
         await command.Handle();
         return Ok();
     }
@@ -77,8 +77,7 @@ public class TaskController : ControllerBase
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteTask(int id)
     {
-        DeleteTaskCommand command = new DeleteTaskCommand(_taskService);
-        command.TaskId = id;
+        DeleteTaskCommand command = new DeleteTaskCommand(_context) { TaskId = id };
         await command.Handle();
         return Ok();
     }

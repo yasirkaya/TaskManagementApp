@@ -1,4 +1,5 @@
 using AutoMapper;
+using Microsoft.EntityFrameworkCore;
 using TaskManagementApp.Data;
 using TaskManagementApp.Models;
 using TaskManagementApp.Services.TaskService;
@@ -7,16 +8,38 @@ namespace TaskManagementApp.Aplication.Queries.GetFilteredTasks;
 
 public class GetFilteredTasksQuery
 {
-    private readonly ITaskService _taskService;
+    private readonly AppDbContext _context;
 
-    public GetFilteredTasksQuery(ITaskService taskService)
+    public GetFilteredTasksQuery(AppDbContext context)
     {
-        _taskService = taskService;
+        _context = context;
     }
 
     public async Task<IEnumerable<TaskItem>> Handle(GetTasksFilterModel filter)
     {
-        return await _taskService.GetFilteredTaskAsync(filter);
+        var query = _context.Task.AsQueryable();
+
+        if (!string.IsNullOrEmpty(filter.Name))
+        {
+            query = query.Where(t => t.Name.Contains(filter.Name));
+        }
+
+        if (filter.IsCompleted.HasValue)
+        {
+            query = query.Where(t => t.IsCompleted == filter.IsCompleted);
+        }
+
+        if (filter.DueDateStart.HasValue)
+        {
+            query = query.Where(t => t.DueDate >= filter.DueDateStart);
+        }
+
+        if (filter.DueDateEnd.HasValue)
+        {
+            query = query.Where(t => t.DueDate <= filter.DueDateEnd);
+        }
+
+        return await query.ToListAsync();
     }
 
     public class GetTasksFilterModel

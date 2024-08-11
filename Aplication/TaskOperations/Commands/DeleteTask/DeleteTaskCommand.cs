@@ -6,15 +6,20 @@ namespace TaskManagementApp.Aplication.Commands.DeleteTask;
 public class DeleteTaskCommand
 {
     public int TaskId { get; set; }
-    private readonly ITaskService _taskService;
+    private readonly AppDbContext _context;
 
-    public DeleteTaskCommand(ITaskService taskService)
+    public DeleteTaskCommand(AppDbContext context)
     {
-        _taskService = taskService;
+        _context = context;
     }
     public async Task Handle()
     {
 
-        await _taskService.DeleteTaskAsync(TaskId);
+        var task = await _context.Task.FindAsync(TaskId);
+        if (task is not null)
+        {
+            _context.Task.Remove(task);
+            await _context.SaveChangesAsync();
+        }
     }
 }

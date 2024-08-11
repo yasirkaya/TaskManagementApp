@@ -7,15 +7,20 @@ namespace TaskManagementApp.Aplication.Queries.GetTaskDetail;
 public class GetTaskDetailQuery
 {
     public int TaskId { get; set; }
-    private readonly ITaskService _taskService;
+    private readonly AppDbContext _context;
 
-    public GetTaskDetailQuery(ITaskService taskService)
+    public GetTaskDetailQuery(AppDbContext context)
     {
-        _taskService = taskService;
+        _context = context;
     }
 
     public async Task<TaskItem> Handle()
     {
-        return await _taskService.GetTaskByIdAsync(TaskId);
+        var task = await _context.Task.FindAsync(TaskId);
+
+        if (task is null)
+            throw new InvalidOperationException("Görev Bulunamadı.");
+
+        return task;
     }
 }
